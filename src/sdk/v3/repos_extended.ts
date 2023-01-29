@@ -54,8 +54,10 @@ export async function reposExtended({
   if (repo === null) return null
   if (JSON.stringify(repo) === JSON.stringify({})) return null
 
+  let repoReturned = null
+
   if (repo !== null && repo !== undefined) {
-    const repoReturned = {
+    repoReturned = {
       id: repo.id || '',
       url: repo.url || '',
       lastPushToDefaultBranch: null
@@ -65,7 +67,10 @@ export async function reposExtended({
     const lastCommitTarget = repo.lastPushToDefaultBranch?.target
 
     if (lastCommitTarget !== null && lastCommitTarget !== undefined) {
-      repoReturned.lastPushToDefaultBranch = lastCommitTarget.history.
+      const history = lastCommitTarget.history
+
+      // just to see what history is
+      console.log(history)
     }
   }
 
