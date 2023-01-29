@@ -1,0 +1,50 @@
+query OrgReposAgExtended_v3(
+  $organization: String!
+  $pageSize: Int
+  $after: String
+) {
+  organization(login: $organization) {
+    repositories(
+      first: $pageSize
+      after: $after
+      orderBy: { field: STARGAZERS, direction: DESC }
+    ) {
+      totalCount
+      pageInfo {
+        startCursor
+        hasNextPage
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          ...RepoEx
+        }
+      }
+    }
+  }
+}
+fragment Commit on Commit {
+  message
+  pushedDate
+  committedDate
+}
+fragment RepoEx on Repository {
+  repositoryName: name
+  id
+  url
+  lastPushToDefaultBranch: defaultBranchRef {
+    name
+    target {
+      ... on Commit {
+        history(first: 1) {
+          edges {
+            node {
+              ...Commit
+            }
+          }
+        }
+      }
+    }
+  }
+}
