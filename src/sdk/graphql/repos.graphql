@@ -24,7 +24,24 @@ query OrgReposAgExtended_v3(
     }
   }
 }
+fragment GitAction on GitActor {
+  date
+  email
+  name
+}
+
+fragment Status on Status {
+  id
+	state 
+}
+
 fragment Commit on Commit {
+  author {
+    ...GitAction
+  }
+  status {
+    ...Status
+  }
   message
   pushedDate
   committedDate

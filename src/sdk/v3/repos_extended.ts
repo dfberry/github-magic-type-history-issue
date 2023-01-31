@@ -1,5 +1,6 @@
 /* eslint no-console: 0 */ // --> OFF
 import {
+  IStatus,
   InputMaybe,
   IOrgReposAgExtended_V3QueryVariables
 } from '../../generated/graphql.sdk'
@@ -19,7 +20,7 @@ export type IRepoExRefactored = {
     message: string | null | undefined
     pushedDate?: string | null | undefined
     committedDate: string | null | undefined
-    status?: string
+    status?: IStatus | null | undefined
   }
 }
 
@@ -60,17 +61,36 @@ export async function reposExtended({
     repoReturned = {
       id: repo.id || '',
       url: repo.url || '',
-      lastPushToDefaultBranch: null
+      lastPushToDefaultBranch: {}
     }
 
-    // Get last commit
+    // THIS IS THE FIX TO GET PAST THROUGH HISTORY
     const lastCommitTarget = repo.lastPushToDefaultBranch?.target
+    let commit
 
-    if (lastCommitTarget !== null && lastCommitTarget !== undefined) {
+    if (
+      lastCommitTarget !== null &&
+      lastCommitTarget !== undefined &&
+      'history' in lastCommitTarget
+    ) {
       const history = lastCommitTarget.history
 
-      // just to see what history is
-      console.log(history)
+      if (
+        history?.edges !== null &&
+        history?.edges !== undefined &&
+        history?.edges.length > 0
+      ) {
+        const node = history?.edges[0]?.node
+        commit = node
+
+        repoReturned.lastPushToDefaultBranch = {
+          name: repo.lastPushToDefaultBranch?.name as string,
+          message: commit?.message,
+          pushedDate: commit?.pushedDate,
+          committedDate: commit?.committedDate,
+          status: commit?.status?.commit?.id
+        }
+      }
     }
   }
 

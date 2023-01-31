@@ -26519,9 +26519,13 @@ export enum IWorkflowRunOrderField {
   CreatedAt = 'CREATED_AT'
 }
 
-export type IRepoExFragment = { id: string, url: any, repositoryName: string, lastPushToDefaultBranch?: { name: string, target?: { history: { edges?: Array<{ node?: { message: string, pushedDate?: any | null | undefined, committedDate: any } | null | undefined } | null | undefined> | null | undefined } } | {} | null | undefined } | null | undefined };
+export type IRepoExFragment = { id: string, url: any, repositoryName: string, lastPushToDefaultBranch?: { name: string, target?: { history: { edges?: Array<{ node?: { message: string, pushedDate?: any | null | undefined, committedDate: any, author?: { date?: any | null | undefined, email?: string | null | undefined, name?: string | null | undefined } | null | undefined, status?: { id: string, state: IStatusState } | null | undefined } | null | undefined } | null | undefined> | null | undefined } } | {} | null | undefined } | null | undefined };
 
-export type ICommitFragment = { message: string, pushedDate?: any | null | undefined, committedDate: any };
+export type ICommitFragment = { message: string, pushedDate?: any | null | undefined, committedDate: any, author?: { date?: any | null | undefined, email?: string | null | undefined, name?: string | null | undefined } | null | undefined, status?: { id: string, state: IStatusState } | null | undefined };
+
+export type IGitActionFragment = { date?: any | null | undefined, email?: string | null | undefined, name?: string | null | undefined };
+
+export type IStatusFragment = { id: string, state: IStatusState };
 
 export type IOrgReposAgExtended_V3QueryVariables = Exact<{
   organization: Scalars['String'];
@@ -26530,15 +26534,35 @@ export type IOrgReposAgExtended_V3QueryVariables = Exact<{
 }>;
 
 
-export type IOrgReposAgExtended_V3Query = { organization?: { repositories: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, hasNextPage: boolean, endCursor?: string | null | undefined }, edges?: Array<{ cursor: string, node?: { id: string, url: any, repositoryName: string, lastPushToDefaultBranch?: { name: string, target?: { history: { edges?: Array<{ node?: { message: string, pushedDate?: any | null | undefined, committedDate: any } | null | undefined } | null | undefined> | null | undefined } } | {} | null | undefined } | null | undefined } | null | undefined } | null | undefined> | null | undefined } } | null | undefined };
+export type IOrgReposAgExtended_V3Query = { organization?: { repositories: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, hasNextPage: boolean, endCursor?: string | null | undefined }, edges?: Array<{ cursor: string, node?: { id: string, url: any, repositoryName: string, lastPushToDefaultBranch?: { name: string, target?: { history: { edges?: Array<{ node?: { message: string, pushedDate?: any | null | undefined, committedDate: any, author?: { date?: any | null | undefined, email?: string | null | undefined, name?: string | null | undefined } | null | undefined, status?: { id: string, state: IStatusState } | null | undefined } | null | undefined } | null | undefined> | null | undefined } } | {} | null | undefined } | null | undefined } | null | undefined } | null | undefined> | null | undefined } } | null | undefined };
 
+export const GitActionFragmentDoc = gql`
+    fragment GitAction on GitActor {
+  date
+  email
+  name
+}
+    `;
+export const StatusFragmentDoc = gql`
+    fragment Status on Status {
+  id
+  state
+}
+    `;
 export const CommitFragmentDoc = gql`
     fragment Commit on Commit {
+  author {
+    ...GitAction
+  }
+  status {
+    ...Status
+  }
   message
   pushedDate
   committedDate
 }
-    `;
+    ${GitActionFragmentDoc}
+${StatusFragmentDoc}`;
 export const RepoExFragmentDoc = gql`
     fragment RepoEx on Repository {
   repositoryName: name
